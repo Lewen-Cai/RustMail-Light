@@ -1,0 +1,14 @@
+{
+  email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+  encode zstd gzip
+
+  @api path /api/* /health
+  reverse_proxy @api rustmaild:8080
+
+  root * /srv
+  try_files {path} /index.html
+  file_server
+}

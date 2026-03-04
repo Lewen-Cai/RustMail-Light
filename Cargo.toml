@@ -1,0 +1,112 @@
+[workspace]
+members = [
+    "crates/core-domain",
+    "crates/core-auth",
+    "crates/core-storage",
+    "crates/core-policy",
+    "crates/proto-smtp",
+    "crates/proto-imap",
+    "crates/proto-pop3",
+    "crates/service-api",
+    "crates/service-worker",
+    "crates/app-rustmaild",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["RustMail Contributors"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/rustmail/rustmail"
+homepage = "https://rustmail.dev"
+rust-version = "1.75"
+
+[workspace.dependencies]
+# Async runtime
+tokio = { version = "1.35", features = ["full"] }
+tokio-util = { version = "0.7", features = ["codec"] }
+futures = "0.3"
+async-trait = "0.1"
+
+# Networking
+bytes = "1.5"
+
+# TLS
+rustls = { version = "0.23", default-features = false, features = ["std", "tls12", "ring"] }
+tokio-rustls = "0.26"
+rustls-pemfile = "2.0"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Database
+sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "postgres", "migrate", "chrono", "uuid", "time"] }
+deadpool = { version = "0.10", features = ["managed"] }
+redis = { version = "0.29", features = ["tokio-comp", "connection-manager"] }
+
+# Web Framework
+axum = { version = "0.7", features = ["macros"] }
+tower = { version = "0.4", features = ["full"] }
+tower-http = { version = "0.5", features = ["cors", "trace", "compression-gzip", "fs"] }
+
+# Authentication & Security
+argon2 = "0.5"
+jsonwebtoken = "9.3"
+uuid = { version = "1.7", features = ["v4", "serde"] }
+
+# Time & Date
+time = { version = "0.3", features = ["serde", "formatting", "parsing", "macros"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+# Configuration
+config = "0.14"
+
+# Error Handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Logging & Tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Email Protocols
+mailin = "0.6"
+mail-parser = "0.9"
+mail-auth = "0.6"
+imap-proto = "0.16"
+
+# CLI
+clap = { version = "4.4", features = ["derive", "env"] }
+
+# Utilities
+regex = "1.10"
+once_cell = "1.19"
+dashmap = "5.5"
+parking_lot = "0.12"
+base64 = "0.22"
+hex = "0.4"
+rand = "0.8"
+
+# Workspace crates
+core-domain = { path = "crates/core-domain" }
+core-auth = { path = "crates/core-auth" }
+core-storage = { path = "crates/core-storage" }
+core-policy = { path = "crates/core-policy" }
+proto-smtp = { path = "crates/proto-smtp" }
+proto-imap = { path = "crates/proto-imap" }
+proto-pop3 = { path = "crates/proto-pop3" }
+service-api = { path = "crates/service-api" }
+service-worker = { path = "crates/service-worker" }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[profile.dev]
+opt-level = 0
+debug = true

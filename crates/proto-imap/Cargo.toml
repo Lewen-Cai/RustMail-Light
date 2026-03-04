@@ -1,0 +1,17 @@
+[package]
+name = "proto-imap"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+core-domain = { workspace = true }
+core-storage = { workspace = true }
+
+imap-proto = { workspace = true }
+tokio = { workspace = true }
+async-trait = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }

@@ -1,0 +1,26 @@
+[package]
+name = "rustmaild"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "rustmaild"
+path = "src/main.rs"
+
+[dependencies]
+core-domain = { workspace = true }
+core-storage = { workspace = true }
+core-auth = { workspace = true }
+proto-smtp = { workspace = true }
+service-api = { workspace = true }
+
+clap = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+config = { workspace = true }
+anyhow = { workspace = true }
+sqlx = { workspace = true }

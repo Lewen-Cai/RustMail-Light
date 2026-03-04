@@ -1,0 +1,19 @@
+[package]
+name = "service-worker"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+core-domain = { workspace = true }
+core-storage = { workspace = true }
+core-auth = { workspace = true }
+
+tokio = { workspace = true }
+async-trait = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }

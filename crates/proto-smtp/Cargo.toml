@@ -1,0 +1,22 @@
+[package]
+name = "proto-smtp"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+core-domain = { workspace = true }
+core-storage = { workspace = true }
+core-auth = { workspace = true }
+
+mailin = { workspace = true }
+mail-parser = { workspace = true }
+
+tokio = { workspace = true }
+async-trait = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }
+bytes = { workspace = true }
+tokio-rustls = { workspace = true }

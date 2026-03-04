@@ -1,0 +1,39 @@
+[package]
+name = "core-auth"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+core-domain = { workspace = true }
+
+# Password hashing
+argon2 = { workspace = true }
+
+# JWT
+jsonwebtoken = { workspace = true }
+
+# Time
+time = { workspace = true }
+
+# UUID
+uuid = { workspace = true }
+
+# Async
+async-trait = { workspace = true }
+tokio = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Redis
+redis = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }

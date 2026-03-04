@@ -1,0 +1,40 @@
+[database]
+url = "postgres://rustmail:change-me@postgres:5432/rustmail"
+max_connections = 20
+connect_timeout_seconds = 10
+
+[smtp]
+bind = "0.0.0.0:25"
+submission_bind = "0.0.0.0:587"
+smtps_bind = "0.0.0.0:465"
+hostname = "mail.example.com"
+starttls = true
+tls_cert_path = "/etc/rustmail/tls/fullchain.pem"
+tls_key_path = "/etc/rustmail/tls/privkey.pem"
+
+[imap]
+bind = "0.0.0.0:993"
+tls_cert_path = "/etc/rustmail/tls/fullchain.pem"
+tls_key_path = "/etc/rustmail/tls/privkey.pem"
+
+[pop3]
+bind = "0.0.0.0:995"
+tls_cert_path = "/etc/rustmail/tls/fullchain.pem"
+tls_key_path = "/etc/rustmail/tls/privkey.pem"
+
+[api]
+bind = "0.0.0.0:8080"
+cors_allowed_origins = ["https://mail.example.com"]
+
+[auth]
+jwt_secret = "replace-with-a-long-random-secret"
+access_token_ttl_minutes = 60
+refresh_token_ttl_days = 7
+
+[logging]
+level = "info"
+format = "json"
+
+[redis]
+url = "redis://:change-me@redis:6379"
+pool_size = 20
