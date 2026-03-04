@@ -16,7 +16,7 @@ RustMail is a modern mail server stack built in Rust, with SMTP handling, an HTT
 For a fresh server (Linux/macOS with Docker installed):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/rustmail/rustmail/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Lewen-Cai/RustMail-Light/main/scripts/install.sh | bash
 ```
 
 You can customize installer variables:
@@ -25,7 +25,7 @@ You can customize installer variables:
 RUSTMAIL_DOMAIN=mail.example.com \
 RUSTMAIL_ROOT_DOMAIN=example.com \
 RUSTMAIL_ACME_EMAIL=admin@example.com \
-curl -fsSL https://raw.githubusercontent.com/rustmail/rustmail/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Lewen-Cai/RustMail-Light/main/scripts/install.sh | bash
 ```
 
 ## Manual Installation

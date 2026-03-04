@@ -1,6 +1,6 @@
 services:
   rustmaild:
-    image: ghcr.io/rustmail/rustmaild:latest
+    image: ghcr.io/Lewen-Cai/rustmaild:latest
     container_name: rustmaild
     restart: unless-stopped
     env_file:

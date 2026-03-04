@@ -38,7 +38,7 @@ if [ ! -w "$(dirname "${INSTALL_DIR}")" ]; then
   echo "No write permission for /opt. Falling back to ${INSTALL_DIR}."
 fi
 
-REPO_RAW_BASE="${RUSTMAIL_REPO_RAW:-https://raw.githubusercontent.com/rustmail/rustmail/main}"
+REPO_RAW_BASE="${RUSTMAIL_REPO_RAW:-https://raw.githubusercontent.com/Lewen-Cai/RustMail-Light/main}"
 DOMAIN="${RUSTMAIL_DOMAIN:-mail.example.com}"
 ROOT_DOMAIN="${RUSTMAIL_ROOT_DOMAIN:-example.com}"
 ACME_EMAIL="${RUSTMAIL_ACME_EMAIL:-admin@${ROOT_DOMAIN}}"
