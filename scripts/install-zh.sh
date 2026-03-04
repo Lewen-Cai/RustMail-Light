@@ -1,52 +1,53 @@
 #!/usr/bin/env bash
 #
-# RustMail One-Click Installation Script
-# Supports interactive configuration and environment checks
+# RustMail 一键安装脚本（中文版）
+# 支持交互式配置和环境检测
 #
 
 set -euo pipefail
 
-# Colors
+# 颜色定义
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m'
+NC='\033[0m' # No Color
 
+# 打印带颜色的消息
 print_error() { echo -e "${RED}✗ $1${NC}" >&2; }
 print_success() { echo -e "${GREEN}✓ $1${NC}"; }
 print_warning() { echo -e "${YELLOW}⚠ $1${NC}"; }
 print_info() { echo -e "${BLUE}ℹ $1${NC}"; }
 
-# Welcome message
+# 欢迎信息
 cat << 'EOF'
 ╔═══════════════════════════════════════════════════════════╗
 ║                                                           ║
-║   RustMail - High-Performance Mail Server                 ║
-║   Modern, Secure, Self-Hosted Email Solution             ║
+║   RustMail - 高性能邮件服务器                              ║
+║   现代、安全、易用的自托管邮件解决方案                      ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
 
 EOF
 
-print_info "Starting environment checks..."
+print_info "开始环境检测..."
 
-# 1. Check OS
+# 1. 检测操作系统
 OS_NAME="$(uname -s)"
 case "${OS_NAME}" in
   Linux)
-    print_success "Operating System: Linux"
+    print_success "操作系统: Linux"
     ;;
   Darwin)
-    print_success "Operating System: macOS"
+    print_success "操作系统: macOS"
     ;;
   *)
-    print_error "Unsupported operating system: ${OS_NAME}"
+    print_error "不支持的操作系统: ${OS_NAME}"
     exit 1
     ;;
 esac
 
-# 2. Check required commands
+# 2. 检测必要命令
 MISSING_CMDS=()
 for cmd in curl openssl; do
   if ! command -v "${cmd}" >/dev/null 2>&1; then
@@ -55,8 +56,8 @@ for cmd in curl openssl; do
 done
 
 if [ ${#MISSING_CMDS[@]} -ne 0 ]; then
-  print_error "Missing required tools: ${MISSING_CMDS[*]}"
-  print_info "Please install using your package manager:"
+  print_error "缺少必要工具: ${MISSING_CMDS[*]}"
+  print_info "请使用包管理器安装:"
   if [[ "${OS_NAME}" == "Linux" ]]; then
     if command -v apt-get >/dev/null 2>&1; then
       echo "  sudo apt-get install -y curl openssl"
@@ -70,17 +71,17 @@ if [ ${#MISSING_CMDS[@]} -ne 0 ]; then
   fi
   exit 1
 fi
-print_success "Required tools installed (curl, openssl)"
+print_success "必要工具已安装 (curl, openssl)"
 
-# 3. Check Docker
+# 3. 检测 Docker
 if ! command -v docker >/dev/null 2>&1; then
-  print_error "Docker not found"
+  print_error "未检测到 Docker"
   echo ""
-  print_info "Please install Docker:"
-  echo "  Official installer:"
+  print_info "请安装 Docker:"
+  echo "  官方安装脚本:"
   echo "    curl -fsSL https://get.docker.com | sh"
   echo ""
-  echo "  Or using package manager:"
+  echo "  或使用包管理器:"
   if [[ "${OS_NAME}" == "Linux" ]]; then
     if command -v apt-get >/dev/null 2>&1; then
       echo "    sudo apt-get install -y docker.io"
@@ -90,152 +91,152 @@ if ! command -v docker >/dev/null 2>&1; then
   fi
   exit 1
 fi
-print_success "Docker installed"
+print_success "Docker 已安装"
 
-# 4. Check Docker daemon
+# 4. 检测 Docker 守护进程
 if ! docker info >/dev/null 2>&1; then
-  print_error "Docker daemon not running or user lacks permission"
-  print_info "Please try:"
+  print_error "Docker 守护进程未运行或当前用户无权限"
+  print_info "请尝试:"
   echo "  sudo systemctl start docker    # Linux systemd"
   echo "  sudo service docker start        # Linux SysV"
-  echo "  Or add current user to docker group:"
+  echo "  或将当前用户加入 docker 组:"
   echo "  sudo usermod -aG docker \$USER && newgrp docker"
   exit 1
 fi
-print_success "Docker daemon is running"
+print_success "Docker 守护进程运行正常"
 
-# 5. Check Docker Compose
+# 5. 检测 Docker Compose
 COMPOSE_CMD=()
 if docker compose version >/dev/null 2>&1; then
   COMPOSE_CMD=(docker compose)
-  print_success "Docker Compose plugin installed"
+  print_success "Docker Compose 插件已安装"
 elif command -v docker-compose >/dev/null 2>&1; then
   COMPOSE_CMD=(docker-compose)
-  print_success "Docker Compose (standalone) installed"
+  print_success "Docker Compose (standalone) 已安装"
 else
-  print_error "Docker Compose not found"
-  print_info "Please install Docker Compose:"
-  echo "  Documentation: https://docs.docker.com/compose/install/"
+  print_error "未检测到 Docker Compose"
+  print_info "请安装 Docker Compose:"
+  echo "  官方文档: https://docs.docker.com/compose/install/"
   exit 1
 fi
 
-# 6. Check port conflicts
-print_info "Checking port availability..."
+# 6. 检测端口占用
+print_info "检测端口占用情况..."
 PORTS=(25 465 587 993 995 80 443)
 PORT_CONFLICT=false
 for port in "${PORTS[@]}"; do
   if command -v ss >/dev/null 2>&1; then
     if ss -tln | grep -q ":${port} "; then
-      print_warning "Port ${port} is already in use"
+      print_warning "端口 ${port} 已被占用"
       PORT_CONFLICT=true
     fi
   elif command -v netstat >/dev/null 2>&1; then
     if netstat -tln 2>/dev/null | grep -q ":${port} "; then
-      print_warning "Port ${port} is already in use"
+      print_warning "端口 ${port} 已被占用"
       PORT_CONFLICT=true
     fi
   fi
 done
 
 if [ "${PORT_CONFLICT}" = true ]; then
-  print_warning "Port conflicts detected, RustMail may not start properly"
-  read -rp "Continue installation anyway? [y/N]: " continue_install
+  print_warning "检测到端口冲突，RustMail 可能无法正常启动"
+  read -rp "是否继续安装? [y/N]: " continue_install
   if [[ ! "${continue_install}" =~ ^[Yy]$ ]]; then
-    print_info "Installation cancelled"
+    print_info "安装已取消"
     exit 0
   fi
 fi
 
 echo ""
-print_success "Environment checks passed!"
+print_success "环境检测通过!"
 echo ""
 
 # ===========================================
-# Interactive Configuration
+# 交互式配置
 # ===========================================
 
-print_info "Configuring RustMail..."
+print_info "开始配置 RustMail..."
 echo ""
 
-# Installation directory
-read -rp "Installation directory [/opt/rustmail]: " input_install_dir
+# 安装目录
+read -rp "安装目录 [/opt/rustmail]: " input_install_dir
 INSTALL_DIR="${input_install_dir:-/opt/rustmail}"
 if [ ! -w "$(dirname "${INSTALL_DIR}")" ]; then
   INSTALL_DIR="${HOME}/rustmail"
-  print_warning "No write permission for /opt, using ${INSTALL_DIR}"
+  print_warning "无 /opt 写入权限，使用 ${INSTALL_DIR}"
 fi
 
-# Domain configuration
+# 域名配置
 echo ""
-print_info "Domain Configuration (for email service and HTTPS)"
-read -rp "Mail server domain [mail.example.com]: " input_domain
+print_info "域名配置 (用于邮件服务和 HTTPS)"
+read -rp "邮件服务器域名 [mail.example.com]: " input_domain
 DOMAIN="${input_domain:-mail.example.com}"
 
-# Auto-detect root domain
+# 从域名自动推断根域名
 if [[ "${DOMAIN}" == mail.* ]]; then
   DEFAULT_ROOT_DOMAIN="${DOMAIN#mail.}"
 else
   DEFAULT_ROOT_DOMAIN="${DOMAIN}"
 fi
-read -rp "Root domain (for MX records) [${DEFAULT_ROOT_DOMAIN}]: " input_root_domain
+read -rp "根域名 (用于 MX 记录) [${DEFAULT_ROOT_DOMAIN}]: " input_root_domain
 ROOT_DOMAIN="${input_root_domain:-${DEFAULT_ROOT_DOMAIN}}"
 
-# Email configuration
+# 邮箱配置
 echo ""
-read -rp "Administrator email [admin@${ROOT_DOMAIN}]: " input_email
+read -rp "管理员邮箱 [admin@${ROOT_DOMAIN}]: " input_email
 ACME_EMAIL="${input_email:-admin@${ROOT_DOMAIN}}"
 
-# Confirm configuration
+# 确认配置
 echo ""
 echo "═══════════════════════════════════════════════════════════"
-print_info "Configuration Summary:"
-echo "  Install Directory: ${INSTALL_DIR}"
-echo "  Mail Domain: ${DOMAIN}"
-echo "  Root Domain: ${ROOT_DOMAIN}"
-echo "  Admin Email: ${ACME_EMAIL}"
+print_info "配置确认:"
+echo "  安装目录: ${INSTALL_DIR}"
+echo "  邮件域名: ${DOMAIN}"
+echo "  根域名:   ${ROOT_DOMAIN}"
+echo "  管理员邮箱: ${ACME_EMAIL}"
 echo "═══════════════════════════════════════════════════════════"
 echo ""
 
-read -rp "Confirm and continue installation? [Y/n]: " confirm
+read -rp "确认以上配置并继续安装? [Y/n]: " confirm
 if [[ "${confirm}" =~ ^[Nn]$ ]]; then
-  print_info "Installation cancelled"
+  print_info "安装已取消"
   exit 0
 fi
 
 # ===========================================
-# Start Installation
+# 开始安装
 # ===========================================
 
 echo ""
-print_info "Installing RustMail..."
+print_info "开始安装 RustMail..."
 
-# Create directories
+# 创建目录
 mkdir -p "${INSTALL_DIR}/deploy" "${INSTALL_DIR}/config" "${INSTALL_DIR}/dkim" "${INSTALL_DIR}/data/mail" "${INSTALL_DIR}/web/mail-ui/dist"
-print_success "Created directory structure"
+print_success "创建目录结构"
 
-# Download deployment files
+# 下载部署文件
 REPO_RAW_BASE="${RUSTMAIL_REPO_RAW:-https://raw.githubusercontent.com/Lewen-Cai/RustMail-Light/main}"
 
-print_info "Downloading configuration files..."
+print_info "下载配置文件..."
 if ! curl -fsSL "${REPO_RAW_BASE}/deploy/docker-compose.yml" -o "${INSTALL_DIR}/deploy/docker-compose.yml"; then
-  print_error "Failed to download docker-compose.yml"
+  print_error "下载 docker-compose.yml 失败"
   exit 1
 fi
-print_success "Downloaded docker-compose.yml"
+print_success "下载 docker-compose.yml"
 
 if ! curl -fsSL "${REPO_RAW_BASE}/deploy/Caddyfile" -o "${INSTALL_DIR}/deploy/Caddyfile"; then
-  print_error "Failed to download Caddyfile"
+  print_error "下载 Caddyfile 失败"
   exit 1
 fi
-print_success "Downloaded Caddyfile"
+print_success "下载 Caddyfile"
 
-# Generate secrets
-print_info "Generating secure keys..."
+# 生成密钥和密码
+print_info "生成安全密钥..."
 JWT_SECRET="$(openssl rand -hex 32)"
 POSTGRES_PASSWORD="$(openssl rand -hex 18)"
 REDIS_PASSWORD="$(openssl rand -hex 18)"
 
-# Create .env file
+# 创建 .env 文件
 cat > "${INSTALL_DIR}/.env" <<EOF
 DOMAIN=${DOMAIN}
 ACME_EMAIL=${ACME_EMAIL}
@@ -244,9 +245,9 @@ POSTGRES_USER=rustmail
 POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 REDIS_PASSWORD=${REDIS_PASSWORD}
 EOF
-print_success "Created environment configuration"
+print_success "创建环境配置文件"
 
-# Create rustmaild.toml
+# 创建 rustmaild.toml
 cat > "${INSTALL_DIR}/config/rustmaild.toml" <<EOF
 [database]
 url = "postgres://rustmail:${POSTGRES_PASSWORD}@postgres:5432/rustmail"
@@ -274,26 +275,26 @@ jwt_secret = "${JWT_SECRET}"
 level = "info"
 format = "json"
 EOF
-print_success "Created main configuration"
+print_success "创建主配置文件"
 
-# Generate DKIM keys
+# 生成 DKIM 密钥
 if [ ! -f "${INSTALL_DIR}/dkim/private.key" ]; then
-  print_info "Generating DKIM key pair..."
+  print_info "生成 DKIM 密钥对..."
   openssl genrsa -out "${INSTALL_DIR}/dkim/private.key" 2048 >/dev/null 2>&1
   openssl rsa -in "${INSTALL_DIR}/dkim/private.key" -pubout -out "${INSTALL_DIR}/dkim/public.pem" >/dev/null 2>&1
-  print_success "DKIM keys generated"
+  print_success "DKIM 密钥生成完成"
 fi
 
 DKIM_PUBLIC_KEY="$(grep -v '-----' "${INSTALL_DIR}/dkim/public.pem" | tr -d '\n')"
 
-# Create default landing page
+# 创建默认首页
 cat > "${INSTALL_DIR}/web/mail-ui/dist/index.html" <<'EOF'
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RustMail - Email Server</title>
+    <title>RustMail - 邮件服务器</title>
     <style>
       body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -321,79 +322,76 @@ cat > "${INSTALL_DIR}/web/mail-ui/dist/index.html" <<'EOF'
     </style>
   </head>
   <body>
-    <h1>🎉 RustMail Installation Successful!</h1>
-    <p class="success">Your email server is running</p>
+    <h1>🎉 RustMail 安装成功!</h1>
+    <p class="success">您的邮件服务器正在运行</p>
     <div class="info-box">
-      <h3>Next Steps:</h3>
+      <h3>下一步操作:</h3>
       <ol>
-        <li>Configure DNS records (see installation output)</li>
-        <li>Build the full Web UI (optional)</li>
-        <li>Create an admin account</li>
+        <li>配置 DNS 记录 (详见安装输出)</li>
+        <li>构建完整的 Web UI (可选)</li>
+        <li>创建管理员账户</li>
       </ol>
     </div>
-    <p>Configuration file: <code>config/rustmaild.toml</code></p>
+    <p>配置文件位置: <code>config/rustmaild.toml</code></p>
   </body>
 </html>
 EOF
-print_success "Created default page"
+print_success "创建默认页面"
 
-# Start services
+# 启动服务
 echo ""
-print_info "Starting RustMail services..."
+print_info "启动 RustMail 服务..."
 (
   cd "${INSTALL_DIR}/deploy"
   if ! "${COMPOSE_CMD[@]}" --env-file ../.env pull; then
-    print_warning "Failed to pull images, will try local images"
+    print_warning "拉取镜像失败，将尝试使用本地镜像"
   fi
   if ! "${COMPOSE_CMD[@]}" --env-file ../.env up -d; then
-    print_error "Failed to start services"
+    print_error "启动服务失败"
     exit 1
   fi
 )
-print_success "RustMail services started"
+print_success "RustMail 服务已启动"
 
-# Get server IP
-SERVER_IP=$(curl -s https://api.ipify.org 2>/dev/null || echo "YOUR_SERVER_IP")
-
-# Output completion info
+# 输出完成信息
 echo ""
 cat << EOF
 ╔═══════════════════════════════════════════════════════════╗
-║                    🎉 Installation Complete! 🎉           ║
+║                    🎉 安装完成! 🎉                         ║
 ╚═══════════════════════════════════════════════════════════╝
 
-📍 Installation Directory: ${INSTALL_DIR}
+📍 安装目录: ${INSTALL_DIR}
 
-📋 Please configure the following DNS records:
+📋 请配置以下 DNS 记录:
 
-  A/AAAA Record:
-    ${DOMAIN} → ${SERVER_IP}
+  A/AAAA 记录:
+    ${DOMAIN} → $(curl -s https://api.ipify.org 2>/dev/null || echo "你的服务器IP")
 
-  MX Record:
-    ${ROOT_DOMAIN}    Priority: 10    Value: ${DOMAIN}
+  MX 记录:
+    ${ROOT_DOMAIN}    优先级:10    值:${DOMAIN}
 
-  TXT Record (SPF):
-    ${ROOT_DOMAIN}    Value: "v=spf1 mx -all"
+  TXT 记录 (SPF):
+    ${ROOT_DOMAIN}    值:"v=spf1 mx -all"
 
-  TXT Record (DKIM):
-    mail._domainkey.${ROOT_DOMAIN}    Value: "v=DKIM1; k=rsa; p=${DKIM_PUBLIC_KEY}"
+  TXT 记录 (DKIM):
+    mail._domainkey.${ROOT_DOMAIN}    值:"v=DKIM1; k=rsa; p=${DKIM_PUBLIC_KEY}"
 
-  TXT Record (DMARC):
-    _dmarc.${ROOT_DOMAIN}    Value: "v=DMARC1; p=quarantine; rua=mailto:postmaster@${ROOT_DOMAIN}"
+  TXT 记录 (DMARC):
+    _dmarc.${ROOT_DOMAIN}    值:"v=DMARC1; p=quarantine; rua=mailto:postmaster@${ROOT_DOMAIN}"
 
-📁 Configuration Files:
-  - Environment: ${INSTALL_DIR}/.env
-  - Main Config: ${INSTALL_DIR}/config/rustmaild.toml
-  - DKIM Private Key: ${INSTALL_DIR}/dkim/private.key
+📁 配置文件位置:
+  - 环境变量: ${INSTALL_DIR}/.env
+  - 主配置:   ${INSTALL_DIR}/config/rustmaild.toml
+  - DKIM私钥: ${INSTALL_DIR}/dkim/private.key
 
-🔧 Common Commands:
-  cd ${INSTALL_DIR}/deploy && ${COMPOSE_CMD[*]} logs -f  # View logs
-  cd ${INSTALL_DIR}/deploy && ${COMPOSE_CMD[*]} stop     # Stop services
-  cd ${INSTALL_DIR}/deploy && ${COMPOSE_CMD[*]} up -d    # Start services
+🔧 常用命令:
+  cd ${INSTALL_DIR}/deploy && ${COMPOSE_CMD[*]} logs -f  # 查看日志
+  cd ${INSTALL_DIR}/deploy && ${COMPOSE_CMD[*]} stop     # 停止服务
+  cd ${INSTALL_DIR}/deploy && ${COMPOSE_CMD[*]} up -d    # 启动服务
 
-🌐 Web Interface:
+🌐 Web 界面:
   https://${DOMAIN}
 
 EOF
 
-print_success "RustMail installation complete!"
+print_success "RustMail 安装完成!"
